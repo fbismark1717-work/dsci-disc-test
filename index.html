@@ -357,8 +357,9 @@
       <p class="hint" style="margin-top:14px;">
         Отвечайте первым, что приходит в голову — не «как правильно», а как вы
         обычно ведёте себя в похожей ситуации (на учёбе, практике или прошлой
-        работе). Правильных ответов нет. Данные никуда не отправляются: всё
-        считается прямо в этой странице.
+        работе). Правильных ответов нет. Результат считается прямо в этой
+        странице и сохраняется в таблицу RCode / Mirro для команды, которая
+        принимает решение по вашей кандидатуре.
       </p>
       <div class="actions-row" style="margin-top:22px; justify-content:flex-start;">
         <button class="primary" id="start-btn">Начать тест →</button>
@@ -431,6 +432,26 @@
 <script>
 (function(){
   "use strict";
+
+  // Google Apps Script Web App URL that appends each result as a row
+  // in a Google Sheet. Leave empty to disable saving (results only
+  // shown on-screen, nothing sent anywhere).
+  var RESULTS_ENDPOINT = "";
+
+  function saveResultRemotely(payload){
+    if (!RESULTS_ENDPOINT) return;
+    try {
+      fetch(RESULTS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      // Saving is best-effort — a network failure shouldn't block
+      // the candidate from seeing their own result.
+    }
+  }
 
   // ---------- Data: 28 statements, 7 per dimension ----------
   var QUESTIONS = [
@@ -626,10 +647,12 @@
     }
 
     // bars
+    var pcts = {};
     var barsContainer = document.getElementById("bars-container");
     barsContainer.innerHTML = "";
     ["D","I","S","C"].forEach(function(dim){
       var pct = Math.round((sums[dim] / MAX) * 100);
+      pcts[dim] = pct;
       var row = document.createElement("div");
       row.className = "bar-row";
       row.innerHTML =
@@ -654,6 +677,15 @@
     fillList("list-risks", TYPE_META[primary].risks);
     fillList("list-motivators", TYPE_META[primary].motivators);
     fillList("list-howto", TYPE_META[primary].howto);
+
+    saveResultRemotely({
+      name: name,
+      D: sums.D, I: sums.I, S: sums.S, C: sums.C,
+      dPct: pcts.D, iPct: pcts.I, sPct: pcts.S, cPct: pcts.C,
+      primaryName: TYPE_META[primary].name,
+      secondaryName: isBlend ? TYPE_META[secondary].name : "",
+      isBlend: isBlend
+    });
   }
 
   function fillList(id, items){
