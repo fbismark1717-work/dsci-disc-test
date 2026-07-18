@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тест типологии личности D.S.C.I.</title>
+<style>
+  :root{
+    --bg: #f5f5f1;
+    --bg-raised: #ffffff;
+    --ink: #1c1f1a;
+    --ink-soft: #565a4f;
+    --line: #dcdcd2;
+    --accent: #2f5d50;
+    --accent-ink: #ffffff;
+    --d-color: #b8462f;
+    --i-color: #c8912a;
+    --s-color: #3c7a5b;
+    --c-color: #3b5a8a;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(20,20,10,0.06), 0 8px 24px -12px rgba(20,20,10,0.18);
+  }
+  :root[data-theme="dark"]{
+    --bg: #141712;
+    --bg-raised: #1d2119;
+    --ink: #eae8df;
+    --ink-soft: #a9ad9d;
+    --line: #333729;
+    --accent: #6fae98;
+    --accent-ink: #0d140f;
+    --d-color: #e08064;
+    --i-color: #e6b862;
+    --s-color: #7ec49f;
+    --c-color: #8fa9dd;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #141712;
+      --bg-raised: #1d2119;
+      --ink: #eae8df;
+      --ink-soft: #a9ad9d;
+      --line: #333729;
+      --accent: #6fae98;
+      --accent-ink: #0d140f;
+      --d-color: #e08064;
+      --i-color: #e6b862;
+      --s-color: #7ec49f;
+      --c-color: #8fa9dd;
+    }
+  }
+
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", ui-sans-serif, -apple-system, system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0 0 0.4em;
+    color: var(--ink);
+  }
+  .wrap{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+  .eyebrow{
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  h1{ font-size: 32px; }
+  .lede{
+    color: var(--ink-soft);
+    font-size: 16px;
+    max-width: 60ch;
+  }
+  .card{
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+  }
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  label.field-label{
+    display:block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  input[type="text"]{
+    width:100%;
+    font: inherit;
+    font-size: 16px;
+    padding: 11px 13px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+  }
+  input[type="text"]:focus, button:focus-visible, .opt input:focus-visible + .opt-face{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button.primary{
+    appearance:none;
+    border:none;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 13px 22px;
+    border-radius: 10px;
+    cursor:pointer;
+    transition: transform .12s ease, filter .12s ease;
+  }
+  button.primary:hover{ filter: brightness(1.06); }
+  button.primary:active{ transform: translateY(1px); }
+  button.primary:disabled{ opacity: .4; cursor: not-allowed; }
+  button.ghost{
+    appearance:none;
+    background:transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor:pointer;
+  }
+
+  /* progress */
+  .progress-track{
+    height: 6px;
+    border-radius: 3px;
+    background: var(--line);
+    overflow:hidden;
+    margin: 20px 0 8px;
+    position: sticky;
+    top: 0;
+  }
+  .progress-fill{
+    height:100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width .25s ease;
+  }
+  .progress-label{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 22px;
+  }
+
+  .q-block{
+    padding: 22px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .q-block:first-of-type{ padding-top: 4px; }
+  .q-num{
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: .04em;
+  }
+  .q-text{
+    font-size: 17px;
+    margin: 6px 0 16px;
+  }
+  .scale{
+    display:flex;
+    gap: 8px;
+  }
+  .opt{ position:relative; flex:1; }
+  .opt input{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    margin:0;
+    cursor:pointer;
+  }
+  .opt-face{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 6px;
+    padding: 10px 4px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .opt-face .dot{
+    width: 16px; height:16px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: var(--bg-raised);
+  }
+  .opt-face .cap{
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    text-align:center;
+    line-height:1.2;
+  }
+  .opt input:checked + .opt-face{
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  }
+  .opt input:checked + .opt-face .dot{
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .actions-row{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin-top: 28px;
+    gap: 12px;
+  }
+  .hint{
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  /* results */
+  .result-hero{
+    display:flex;
+    align-items:baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .result-hero .type-badge{
+    font-family: Georgia, serif;
+    font-size: 40px;
+    font-weight: 700;
+    line-height:1;
+  }
+  .bars{
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
+    margin: 22px 0 4px;
+  }
+  .bar-row{
+    display:grid;
+    grid-template-columns: 128px 1fr 44px;
+    align-items:center;
+    gap: 12px;
+  }
+  .bar-name{
+    font-size: 13.5px;
+    font-weight: 700;
+  }
+  .bar-track{
+    height: 12px;
+    border-radius: 6px;
+    background: var(--line);
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    border-radius: 6px;
+    width:0%;
+    transition: width .7s cubic-bezier(.2,.8,.2,1);
+  }
+  .bar-pct{
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    text-align:right;
+    color: var(--ink-soft);
+  }
+
+  .type-section{
+    margin-top: 30px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .type-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 16px;
+  }
+  @media (max-width: 560px){
+    .type-grid{ grid-template-columns: 1fr; }
+    .bar-row{ grid-template-columns: 96px 1fr 40px; }
+  }
+  .type-grid h3{
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--ink-soft);
+    font-family: "Segoe UI", ui-sans-serif, sans-serif;
+    margin-bottom: 8px;
+  }
+  .type-grid ul{
+    margin:0; padding-left: 18px;
+    font-size: 14.5px;
+  }
+  .type-grid li{ margin-bottom: 5px; }
+
+  .print-only{ display:none; }
+  @media print{
+    .no-print{ display:none !important; }
+    .print-only{ display:block; }
+    body{ background:#fff; color:#000; }
+    .card{ box-shadow:none; border:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .bar-fill, .progress-fill{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===================== SCREEN 1: INTRO ===================== -->
+  <section id="screen-intro" class="screen active">
+    <div class="eyebrow">D.S.C.I. · Оценка стиля поведения</div>
+    <h1>Тест типологии личности DISC</h1>
+    <p class="lede">
+      28 коротких утверждений о вашем поведении на работе. Результат — ваш профиль
+      по четырём стилям (D, I, S, C) — считается автоматически и появляется сразу
+      после ответа на последний вопрос. Занимает 5–7 минут.
+    </p>
+
+    <div class="card" style="margin-top:24px;">
+      <label class="field-label" for="name-input">Имя сотрудника (необязательно, для шапки результата)</label>
+      <input type="text" id="name-input" placeholder="Например, Анна К." maxlength="60" autocomplete="off">
+      <p class="hint" style="margin-top:14px;">
+        Отвечайте первым, что приходит в голову — не «как правильно», а как обычно
+        ведёте себя в реальной рабочей ситуации. Правильных ответов нет. Данные
+        никуда не отправляются: всё считается прямо в этой странице.
+      </p>
+      <div class="actions-row" style="margin-top:22px; justify-content:flex-start;">
+        <button class="primary" id="start-btn">Начать тест →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SCREEN 2: QUIZ ===================== -->
+  <section id="screen-quiz" class="screen">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">Вопрос 1 из 28</div>
+
+    <div id="quiz-form"></div>
+
+    <div class="actions-row">
+      <span class="hint" id="remaining-hint">Осталось ответить: 28</span>
+      <button class="primary" id="submit-btn" disabled>Показать результат →</button>
+    </div>
+  </section>
+
+  <!-- ===================== SCREEN 3: RESULTS ===================== -->
+  <section id="screen-results" class="screen">
+    <div class="eyebrow">Результат теста · D.S.C.I.</div>
+    <h1 id="result-title">Профиль поведения</h1>
+    <p class="lede" id="result-name-line"></p>
+
+    <div class="card" style="margin-top:22px;">
+      <div class="result-hero">
+        <div class="type-badge" id="result-badge">D</div>
+        <div>
+          <div style="font-size:19px; font-weight:700;" id="result-type-name">Доминирующий</div>
+          <div class="hint" id="result-type-sub">Ведущий стиль</div>
+        </div>
+      </div>
+
+      <div class="bars" id="bars-container"></div>
+
+      <p style="margin-top:18px;" id="result-summary"></p>
+
+      <div class="type-section">
+        <div class="type-grid">
+          <div>
+            <h3>Сильные стороны</h3>
+            <ul id="list-strengths"></ul>
+          </div>
+          <div>
+            <h3>Возможные риски</h3>
+            <ul id="list-risks"></ul>
+          </div>
+          <div>
+            <h3>Что мотивирует</h3>
+            <ul id="list-motivators"></ul>
+          </div>
+          <div>
+            <h3>Как работать с этим коллегой</h3>
+            <ul id="list-howto"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-row no-print">
+      <button class="ghost" id="restart-btn">Пройти заново</button>
+      <button class="primary" id="print-btn">Сохранить / распечатать</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Data: 28 statements, 7 per dimension ----------
+  var QUESTIONS = [
+    // D — Доминирование
+    {dim:"D", text:"Я быстро беру на себя ответственность, когда команде нужно принять решение."},
+    {dim:"D", text:"Мне важнее получить результат, чем сохранить со всеми ровные отношения."},
+    {dim:"D", text:"Я комфортно чувствую себя, споря с руководителем, если считаю его неправым."},
+    {dim:"D", text:"Меня раздражают долгие согласования там, где можно решить сразу."},
+    {dim:"D", text:"Я люблю сложные и амбициозные задачи, где есть чёткая цель — победить."},
+    {dim:"D", text:"Я скорее скажу прямо и жёстко, чем буду смягчать неудобную обратную связь."},
+    {dim:"D", text:"Я предпочитаю сам определять, как будет сделана моя работа."},
+
+    // I — Влияние
+    {dim:"I", text:"Мне легко знакомиться и находить общий язык с новыми людьми в команде."},
+    {dim:"I", text:"Я заряжаю коллег энтузиазмом, когда нужно начать новый проект."},
+    {dim:"I", text:"Мне важно, чтобы мою работу заметили и оценили публично."},
+    {dim:"I", text:"Я лучше соображаю, проговаривая идеи вслух с другими, чем в одиночестве."},
+    {dim:"I", text:"Мне сложно долго заниматься монотонной работой без общения с людьми."},
+    {dim:"I", text:"Я обычно смотрю на будущее с оптимизмом, даже когда что-то идёт не так."},
+    {dim:"I", text:"Я умею убедить коллег в своей идее, даже если сначала они сомневались."},
+
+    // S — Стабильность
+    {dim:"S", text:"Я предпочитаю предсказуемый, стабильный темп работы внезапным рывкам."},
+    {dim:"S", text:"Коллеги считают меня человеком, на которого можно положиться в любой ситуации."},
+    {dim:"S", text:"Мне важно, чтобы в команде сохранялись хорошие отношения, даже при разногласиях."},
+    {dim:"S", text:"Я предпочитаю выслушать всех, прежде чем высказать своё мнение."},
+    {dim:"S", text:"Резкие и частые изменения в планах выбивают меня из колеи."},
+    {dim:"S", text:"Я терпеливо довожу начатое до конца, даже если это долго и не очень интересно."},
+    {dim:"S", text:"Мне комфортнее работать в сложившейся команде, чем постоянно с новыми людьми."},
+
+    // C — Соответствие
+    {dim:"C", text:"Прежде чем действовать, я тщательно проверяю факты и детали."},
+    {dim:"C", text:"Я стараюсь следовать регламентам и стандартам, даже если это замедляет работу."},
+    {dim:"C", text:"Мне важно понимать логику и данные, стоящие за решением, а не просто довериться интуиции."},
+    {dim:"C", text:"Я замечаю ошибки и неточности там, где другие их не видят."},
+    {dim:"C", text:"Я предпочитаю тщательно спланировать работу заранее, а не действовать по ситуации."},
+    {dim:"C", text:"Мне некомфортно представлять результат, если я не уверен в его точности."},
+    {dim:"C", text:"Я скорее промолчу, чем выскажу мнение, которое не подкреплено фактами."}
+  ];
+
+  var SCALE_LABELS = ["Совсем не про меня","Скорее не про меня","Иногда","Скорее про меня","Точно про меня"];
+
+  var TYPE_META = {
+    D: {
+      name: "Доминирующий",
+      color: "var(--d-color)",
+      summaryHigh: "Вы ориентированы на результат и контроль: ставите цель и двигаетесь к ней напрямую, не боясь конфликтов и быстрых решений.",
+      strengths: ["Берёт на себя ответственность в кризисных ситуациях","Двигает проекты вперёд, не даёт им «зависать»","Не боится сложных и рискованных задач","Прямо говорит о проблемах"],
+      risks: ["Может показаться резким или нетерпеливым к чужому мнению","Рискует принимать решения раньше, чем собраны все данные","Может обесценивать процесс и отношения ради скорости"],
+      motivators: ["Чёткие амбициозные цели","Автономия в принятии решений","Видимый измеримый результат","Возможность конкурировать и побеждать"],
+      howto: ["Ставьте цель и сроки — не микроменеджерьте процесс","Говорите по делу и коротко","Давайте пространство для самостоятельных решений","Не бойтесь спорить с ним аргументами, а не эмоциями"]
+    },
+    I: {
+      name: "Влияющий",
+      color: "var(--i-color)",
+      summaryHigh: "Вы заряжаете команду энергией и энтузиазмом: легко находите общий язык с людьми и умеете увлечь их идеей.",
+      strengths: ["Создаёт позитивную атмосфере в команде","Легко налаживает контакты внутри и вне компании","Умеет вдохновлять и убеждать","Быстро генерирует идеи в диалоге"],
+      risks: ["Может увлечься процессом общения в ущерб срокам","Не всегда доводит детали до конца","Чувствителен к критике и недостатку признания","Может переоценивать свои обещания"],
+      motivators: ["Публичное признание и одобрение", "Живое общение и совместная работа","Новые люди и проекты","Свобода от рутины и жёстких рамок"],
+      howto: ["Давайте признание за успехи, желательно публично","Обсуждайте идеи вслух, а не только в переписке","Помогайте фиксировать договорённости письменно","Не лишайте общения с командой"]
+    },
+    S: {
+      name: "Стабильный",
+      color: "var(--s-color)",
+      summaryHigh: "Вы — опора команды: надёжны, терпеливы и цените ровные отношения больше, чем резкие рывки и конфликты.",
+      strengths: ["Надёжно доводит начатое до конца","Создаёт ощущение стабильности в команде","Хорошо слушает и учитывает мнение других","Спокойно работает в долгих проектах"],
+      risks: ["Тяжело переживает резкие изменения и неопределённость","Может избегать нужного, но неприятного конфликта","Не всегда сразу озвучивает своё несогласие","Медленнее адаптируется к новому темпу"],
+      motivators: ["Предсказуемость и понятные ожидания","Доверие и признание надёжности","Дружелюбная атмосфера без конфликтов","Достаточно времени на освоение изменений"],
+      howto: ["Предупреждайте об изменениях заранее, а не внезапно","Прямо спрашивайте его мнение — сам может не высказать","Отмечайте его надёжность и вклад","Не давите на скорость там, где важна точность"]
+    },
+    C: {
+      name: "Соответствующий",
+      color: "var(--c-color)",
+      summaryHigh: "Вы цените точность, факты и системность: тщательно проверяете детали и предпочитаете взвешенные решения быстрым.",
+      strengths: ["Замечает ошибки и риски, которые пропускают другие","Обеспечивает качество и точность результата","Действует по продуманному плану, а не наугад","Опирается на данные, а не на догадки"],
+      risks: ["Может затягивать решение в поиске «идеальных» данных","Излишне критично относится к своей и чужой работе","Тяжело переключается на работу без чётких правил","Может показаться холодным в общении"],
+      motivators: ["Ясные критерии качества и стандарты","Достаточно времени на анализ","Доступ к полным и точным данным","Признание профессионализма, а не только скорости"],
+      howto: ["Давайте время на анализ перед тем, как требовать решение","Аргументируйте задачи фактами и логикой, а не эмоциями","Уточняйте критерии «готово», чтобы избежать бесконечной доработки","Цените его проверку — не пропускайте её в спешке"]
+    }
+  };
+
+  // ---------- State ----------
+  var answers = {}; // qIndex -> 1..5
+  var TOTAL = QUESTIONS.length;
+
+  var screenIntro = document.getElementById("screen-intro");
+  var screenQuiz = document.getElementById("screen-quiz");
+  var screenResults = document.getElementById("screen-results");
+  var nameInput = document.getElementById("name-input");
+  var quizForm = document.getElementById("quiz-form");
+  var progressFill = document.getElementById("progress-fill");
+  var progressLabel = document.getElementById("progress-label");
+  var remainingHint = document.getElementById("remaining-hint");
+  var submitBtn = document.getElementById("submit-btn");
+
+  function showScreen(el){
+    [screenIntro, screenQuiz, screenResults].forEach(function(s){ s.classList.remove("active"); });
+    el.classList.add("active");
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function buildQuiz(){
+    var html = "";
+    QUESTIONS.forEach(function(q, i){
+      html += '<div class="q-block">';
+      html += '<div class="q-num">Вопрос ' + (i+1) + ' из ' + TOTAL + '</div>';
+      html += '<div class="q-text">' + q.text + '</div>';
+      html += '<div class="scale" role="radiogroup" aria-label="Вопрос ' + (i+1) + '">';
+      for (var v = 1; v <= 5; v++){
+        html += '<label class="opt">';
+        html += '<input type="radio" name="q' + i + '" value="' + v + '" data-qindex="' + i + '">';
+        html += '<span class="opt-face"><span class="dot"></span><span class="cap">' + SCALE_LABELS[v-1] + '</span></span>';
+        html += '</label>';
+      }
+      html += '</div></div>';
+    });
+    quizForm.innerHTML = html;
+
+    quizForm.addEventListener("change", function(e){
+      var t = e.target;
+      if (t && t.matches('input[type="radio"]')){
+        answers[Number(t.dataset.qindex)] = Number(t.value);
+        updateProgress();
+      }
+    });
+  }
+
+  function updateProgress(){
+    var answered = Object.keys(answers).length;
+    var pct = Math.round((answered / TOTAL) * 100);
+    progressFill.style.width = pct + "%";
+    progressLabel.textContent = "Отвечено " + answered + " из " + TOTAL;
+    remainingHint.textContent = answered < TOTAL
+      ? "Осталось ответить: " + (TOTAL - answered)
+      : "Все вопросы отвечены";
+    submitBtn.disabled = answered < TOTAL;
+  }
+
+  document.getElementById("start-btn").addEventListener("click", function(){
+    buildQuiz();
+    updateProgress();
+    showScreen(screenQuiz);
+  });
+
+  submitBtn.addEventListener("click", function(){
+    if (Object.keys(answers).length < TOTAL) return;
+    renderResults();
+    showScreen(screenResults);
+  });
+
+  document.getElementById("restart-btn").addEventListener("click", function(){
+    answers = {};
+    nameInput.value = "";
+    showScreen(screenIntro);
+  });
+
+  document.getElementById("print-btn").addEventListener("click", function(){
+    window.print();
+  });
+
+  // ---------- Scoring ----------
+  function renderResults(){
+    var sums = {D:0, I:0, S:0, C:0};
+    QUESTIONS.forEach(function(q, i){
+      sums[q.dim] += answers[i];
+    });
+    var MAX = 7 * 5; // 7 questions per dim, 5 max each
+
+    var order = ["D","I","S","C"].sort(function(a,b){ return sums[b] - sums[a]; });
+    var primary = order[0];
+    var secondary = order[1];
+    var isBlend = (sums[primary] - sums[secondary]) <= 2;
+
+    var name = nameInput.value.trim();
+    document.getElementById("result-name-line").textContent = name
+      ? "Профиль сотрудника: " + name
+      : "Результат прохождения теста";
+
+    var badge = document.getElementById("result-badge");
+    var typeNameEl = document.getElementById("result-type-name");
+    var typeSubEl = document.getElementById("result-type-sub");
+
+    if (isBlend){
+      badge.textContent = primary + secondary;
+      badge.style.color = "var(--" + primary.toLowerCase() + "-color)";
+      typeNameEl.textContent = TYPE_META[primary].name + " / " + TYPE_META[secondary].name;
+      typeSubEl.textContent = "Смешанный ведущий профиль";
+    } else {
+      badge.textContent = primary;
+      badge.style.color = "var(--" + primary.toLowerCase() + "-color)";
+      typeNameEl.textContent = TYPE_META[primary].name;
+      typeSubEl.textContent = "Ведущий стиль";
+    }
+
+    // bars
+    var barsContainer = document.getElementById("bars-container");
+    barsContainer.innerHTML = "";
+    ["D","I","S","C"].forEach(function(dim){
+      var pct = Math.round((sums[dim] / MAX) * 100);
+      var row = document.createElement("div");
+      row.className = "bar-row";
+      row.innerHTML =
+        '<span class="bar-name" style="color:var(--' + dim.toLowerCase() + '-color)">' + dim + ' · ' + TYPE_META[dim].name + '</span>' +
+        '<span class="bar-track"><span class="bar-fill" style="background:var(--' + dim.toLowerCase() + '-color)"></span></span>' +
+        '<span class="bar-pct">' + pct + '%</span>';
+      barsContainer.appendChild(row);
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          row.querySelector(".bar-fill").style.width = pct + "%";
+        });
+      });
+    });
+
+    document.getElementById("result-summary").textContent = isBlend
+      ? TYPE_META[primary].summaryHigh + " У вас также заметно выражен стиль «" + TYPE_META[secondary].name + "» — на практике вы, скорее всего, сочетаете оба подхода в зависимости от ситуации."
+      : TYPE_META[primary].summaryHigh;
+
+    fillList("list-strengths", TYPE_META[primary].strengths);
+    fillList("list-risks", TYPE_META[primary].risks);
+    fillList("list-motivators", TYPE_META[primary].motivators);
+    fillList("list-howto", TYPE_META[primary].howto);
+  }
+
+  function fillList(id, items){
+    var el = document.getElementById(id);
+    el.innerHTML = items.map(function(t){ return "<li>" + t + "</li>"; }).join("");
+  }
+
+})();
+</script>
+</body>
+</html>
