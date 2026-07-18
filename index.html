@@ -646,13 +646,27 @@
       typeSubEl.textContent = "Ведущий стиль";
     }
 
-    // bars
+    // Percentages are each dimension's share of the total points scored,
+    // so D% + I% + S% + C% always add up to 100 — a profile, not four
+    // independent scores that can all be "high" at once.
+    var total = sums.D + sums.I + sums.S + sums.C;
     var pcts = {};
+    var exact = {};
+    ["D","I","S","C"].forEach(function(dim){
+      exact[dim] = total > 0 ? (sums[dim] / total) * 100 : 25;
+      pcts[dim] = Math.floor(exact[dim]);
+    });
+    var remainder = 100 - (pcts.D + pcts.I + pcts.S + pcts.C);
+    var byRemainder = ["D","I","S","C"].sort(function(a,b){
+      return (exact[b] - pcts[b]) - (exact[a] - pcts[a]);
+    });
+    for (var r = 0; r < remainder; r++){ pcts[byRemainder[r]] += 1; }
+
+    // bars
     var barsContainer = document.getElementById("bars-container");
     barsContainer.innerHTML = "";
     ["D","I","S","C"].forEach(function(dim){
-      var pct = Math.round((sums[dim] / MAX) * 100);
-      pcts[dim] = pct;
+      var pct = pcts[dim];
       var row = document.createElement("div");
       row.className = "bar-row";
       row.innerHTML =
