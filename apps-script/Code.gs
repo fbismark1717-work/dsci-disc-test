@@ -10,7 +10,7 @@ function doPost(e) {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     if (sheet.getLastRow() === 0) {
       sheet.appendRow([
-        "Дата", "Имя кандидата",
+        "Дата", "Имя кандидата", "Роль",
         "D (баллы)", "I (баллы)", "S (баллы)", "C (баллы)",
         "D %", "I %", "S %", "C %",
         "Основной тип", "Смешанный тип", "Смешанный профиль"
@@ -22,6 +22,7 @@ function doPost(e) {
     sheet.appendRow([
       new Date(),
       data.name || "",
+      data.role || "",
       data.D, data.I, data.S, data.C,
       data.dPct, data.iPct, data.sPct, data.cPct,
       data.primaryName || "",
