@@ -280,56 +280,83 @@
   /* results */
   .result-hero{
     display:flex;
-    align-items:baseline;
-    gap: 14px;
-    flex-wrap: wrap;
+    flex-direction:column;
+    gap: 2px;
   }
-  .result-hero .type-badge{
+
+  .donut-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap: wrap;
+    gap: 28px;
+    margin: 24px 0 4px;
+  }
+  .donut{
+    width: 168px;
+    height: 168px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    background: conic-gradient(var(--line) 0% 100%);
+  }
+  .donut-hole{
+    position:absolute;
+    inset: 24px;
+    border-radius: 50%;
+    background: var(--bg-raised);
+    box-shadow: inset 0 0 0 1px var(--line);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 0 8px;
+  }
+  .donut-letter{
     font-family: Georgia, serif;
-    font-size: 40px;
+    font-size: 32px;
     font-weight: 700;
     line-height:1;
   }
-  .bars{
+  .donut-sub{
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 5px;
+    max-width: 96px;
+  }
+
+  .legend{
+    list-style:none;
+    margin:0;
+    padding:0;
     display:flex;
     flex-direction:column;
-    gap: 14px;
-    margin: 22px 0 4px;
+    gap: 12px;
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
   }
-  .bar-head{
+  .legend li{
     display:flex;
-    align-items:baseline;
-    justify-content: space-between;
+    align-items:center;
     gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 7px;
   }
-  .bar-name{
-    font-size: 13.5px;
-    font-weight: 700;
-  }
-  .bar-figures{
-    font-variant-numeric: tabular-nums;
-    font-size: 13px;
-    color: var(--ink-soft);
-    white-space: nowrap;
-  }
-  .bar-figures .bar-pct{
-    font-size: 14.5px;
-    font-weight: 700;
-    color: var(--ink);
-  }
-  .bar-track{
+  .legend .swatch{
+    width: 12px;
     height: 12px;
-    border-radius: 6px;
-    background: var(--line);
-    overflow:hidden;
+    border-radius: 3px;
+    flex-shrink: 0;
   }
-  .bar-fill{
-    height:100%;
-    border-radius: 6px;
-    width:0%;
-    transition: width .7s cubic-bezier(.2,.8,.2,1);
+  .legend .legend-name{
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .legend .legend-pct{
+    font-size: 17px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
 
   .type-section{
@@ -369,7 +396,7 @@
   }
 
   @media (prefers-reduced-motion: reduce){
-    .bar-fill, .progress-fill{ transition:none; }
+    .progress-fill{ transition:none; }
   }
 </style>
 </head>
@@ -452,14 +479,19 @@
 
     <div class="card" style="margin-top:22px;">
       <div class="result-hero">
-        <div class="type-badge" id="result-badge">D</div>
-        <div>
-          <div style="font-size:19px; font-weight:700;" id="result-type-name">Доминирующий</div>
-          <div class="hint" id="result-type-sub">Ведущий стиль</div>
-        </div>
+        <div style="font-size:19px; font-weight:700;" id="result-type-name">Доминирующий</div>
+        <div class="hint" id="result-type-sub">Ведущий стиль</div>
       </div>
 
-      <div class="bars" id="bars-container"></div>
+      <div class="donut-row">
+        <div class="donut" id="donut-chart">
+          <div class="donut-hole">
+            <span class="donut-letter" id="donut-letter">D</span>
+            <span class="donut-sub" id="donut-sub">основной стиль</span>
+          </div>
+        </div>
+        <ul class="legend" id="legend-list"></ul>
+      </div>
 
       <p style="margin-top:18px;" id="result-summary"></p>
 
@@ -786,7 +818,6 @@
     currentQuestions.forEach(function(q, i){
       sums[q.dim] += answers[i];
     });
-    var MAX = 7 * 5; // 7 questions per dim, 5 max each
 
     var order = ["D","I","S","C"].sort(function(a,b){ return sums[b] - sums[a]; });
     var primary = order[0];
@@ -799,18 +830,21 @@
       ? "Профиль кандидата: " + name + " · " + roleLabel
       : "Результат прохождения теста · " + roleLabel;
 
-    var badge = document.getElementById("result-badge");
+    var donutLetter = document.getElementById("donut-letter");
+    var donutSub = document.getElementById("donut-sub");
     var typeNameEl = document.getElementById("result-type-name");
     var typeSubEl = document.getElementById("result-type-sub");
 
     if (isBlend){
-      badge.textContent = primary + secondary;
-      badge.style.color = "var(--" + primary.toLowerCase() + "-color)";
+      donutLetter.textContent = primary + secondary;
+      donutLetter.style.color = "var(--" + primary.toLowerCase() + "-color)";
+      donutSub.textContent = "смешанный профиль";
       typeNameEl.textContent = TYPE_META[primary].name + " / " + TYPE_META[secondary].name;
       typeSubEl.textContent = "Смешанный ведущий профиль";
     } else {
-      badge.textContent = primary;
-      badge.style.color = "var(--" + primary.toLowerCase() + "-color)";
+      donutLetter.textContent = primary;
+      donutLetter.style.color = "var(--" + primary.toLowerCase() + "-color)";
+      donutSub.textContent = "основной стиль";
       typeNameEl.textContent = TYPE_META[primary].name;
       typeSubEl.textContent = "Ведущий стиль";
     }
@@ -831,26 +865,26 @@
     });
     for (var r = 0; r < remainder; r++){ pcts[byRemainder[r]] += 1; }
 
-    // bars
-    var barsContainer = document.getElementById("bars-container");
-    barsContainer.innerHTML = "";
+    // donut chart — a conic-gradient ring whose four arcs are each
+    // dimension's share of the whole, plus a text legend for exact numbers.
+    var donut = document.getElementById("donut-chart");
+    var stops = [];
+    var cursor = 0;
     ["D","I","S","C"].forEach(function(dim){
-      var pct = pcts[dim];
-      var row = document.createElement("div");
-      row.className = "bar-row";
-      row.innerHTML =
-        '<div class="bar-head">' +
-          '<span class="bar-name" style="color:var(--' + dim.toLowerCase() + '-color)">' + dim + ' · ' + TYPE_META[dim].name + '</span>' +
-          '<span class="bar-figures">' + sums[dim] + ' из ' + MAX + ' баллов · <span class="bar-pct">' + pct + '%</span></span>' +
-        '</div>' +
-        '<span class="bar-track"><span class="bar-fill" style="background:var(--' + dim.toLowerCase() + '-color)"></span></span>';
-      barsContainer.appendChild(row);
-      requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          row.querySelector(".bar-fill").style.width = pct + "%";
-        });
-      });
+      var start = cursor;
+      cursor += pcts[dim];
+      stops.push("var(--" + dim.toLowerCase() + "-color) " + start + "% " + cursor + "%");
     });
+    donut.style.background = "conic-gradient(" + stops.join(", ") + ")";
+
+    var legendList = document.getElementById("legend-list");
+    legendList.innerHTML = ["D","I","S","C"].map(function(dim){
+      return '<li>' +
+        '<span class="swatch" style="background:var(--' + dim.toLowerCase() + '-color)"></span>' +
+        '<span class="legend-name">' + dim + ' · ' + TYPE_META[dim].name + '</span>' +
+        '<span class="legend-pct">' + pcts[dim] + '%</span>' +
+      '</li>';
+    }).join("");
 
     document.getElementById("result-summary").textContent = isBlend
       ? TYPE_META[primary].summaryHigh + " У вас также заметно выражен стиль «" + TYPE_META[secondary].name + "» — на практике вы, скорее всего, сочетаете оба подхода в зависимости от ситуации."
